@@ -116,6 +116,7 @@
   const slashes = [];
   const forceBursts = [];
   const afterImages = [];
+  const items = [];
 
   let audioCtx = null;
   let bgmSource = null;
@@ -360,6 +361,7 @@
     slashes.length = 0;
     forceBursts.length = 0;
     afterImages.length = 0;
+    items.length = 0;
 
     state.mode = "playing";
     state.time = 0;
@@ -497,7 +499,7 @@
       if (enemy.dead) continue;
       const side = (enemy.x - player.x) * player.facing;
       if (side > -20 && side < 390) {
-        hurtEnemy(enemy, enemy.type === "lastboss" ? 18 : 24, player.facing * 520);
+        hurtEnemy(enemy, enemy.type === "lastboss" ? 18 : 24, player.facing * 520, true);
       }
     }
 
@@ -512,7 +514,7 @@
     }
   }
 
-  function hurtEnemy(enemy, amount, knockback) {
+  function hurtEnemy(enemy, amount, knockback, isForce = false) {
     if (enemy.dead) return;
     enemy.hp -= amount;
     enemy.vx += knockback;
@@ -533,6 +535,9 @@
         player.hp = clamp(player.hp + 18, 0, 100);
         state.shake = Math.max(state.shake, 12);
         spark(enemy.x, enemy.height * 0.72, 34, "#ffd166");
+      }
+      if (isForce) {
+        items.push({ x: enemy.x, z: enemy.height * 0.5, vx: (Math.random() - 0.5) * 200, vz: 300, life: 8 });
       }
     }
   }
@@ -603,8 +608,38 @@
     updateProjectiles(dt);
     updateEffects(dt);
     updateParticles(dt);
+    updateItems(dt);
     updateWaves(dt);
     updateHud();
+  }
+
+  function updateItems(dt) {
+    for (let i = items.length - 1; i >= 0; i -= 1) {
+      const item = items[i];
+      item.life -= dt;
+      item.x += item.vx * dt;
+      item.z += item.vz * dt;
+      item.vz -= 1420 * dt;
+      if (item.z <= 0) {
+        item.z = 0;
+        item.vz = -item.vz * 0.4;
+        item.vx *= 0.5;
+      }
+
+      const dx = Math.abs(player.x - item.x);
+      const dz = Math.abs((player.z + 50) - (item.z + 10));
+      if (dx < 40 && dz < 60) {
+        player.hp = clamp(player.hp + 20, 0, 100);
+        sound("clear");
+        spark(item.x, item.z + 20, 15, "#6dff9f");
+        items.splice(i, 1);
+        continue;
+      }
+
+      if (item.life <= 0) {
+        items.splice(i, 1);
+      }
+    }
   }
 
   function updatePlayer(dt) {
@@ -837,6 +872,7 @@
     }
 
     drawBackground();
+    drawItems();
     drawProjectiles();
     drawAfterImages();
     drawEnemies();
@@ -1044,6 +1080,37 @@
     }
     ctx.restore();
   }
+
+  function drawItems() {
+    const g = groundY();
+    ctx.save();
+    for (const item of items) {
+      if (item.life < 2 && Math.floor(state.time * 16) % 2 === 0) continue;
+      const x = item.x - state.cameraX;
+      if (x < -50 || x > view.w + 50) continue;
+
+      const y = g - item.z;
+      ctx.translate(x, y - 10);
+      
+      ctx.fillStyle = "#ffffff";
+      ctx.shadowColor = "#ffffff";
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.moveTo(0, -18);
+      ctx.lineTo(-14, 10);
+      ctx.lineTo(14, 10);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#222222";
+      ctx.fillRect(-7, 2, 14, 8);
+      
+      ctx.translate(-x, -(y - 10));
+    }
+    ctx.restore();
+  }
+
 
   function enemyImage(enemy) {
     if (enemy.type === "melee") return "enemyMelee";
