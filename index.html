@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OMSOLO: Neon Saber Rush</title>
+    <link rel="stylesheet" href="./styles.css?v=4" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <canvas id="game" aria-label="OMSOLO Neon Saber Rush"></canvas>
+
+      <section class="hud" aria-label="status">
+        <div class="brand">OMSOLO</div>
+        <div class="meters">
+          <div class="meter meter-hp"><span id="hpFill"></span></div>
+          <div class="meter meter-force"><span id="forceFill"></span></div>
+        </div>
+        <div class="stats">
+          <span id="waveText">01</span>
+          <span id="scoreText">000000</span>
+          <span id="comboText">x0</span>
+        </div>
+      </section>
+
+      <section id="bossHud" class="boss-hud" hidden>
+        <div id="bossName">BOSS</div>
+        <div class="boss-meter"><span id="bossFill"></span></div>
+      </section>
+
+      <section id="centerPanel" class="center-panel">
+        <p id="kicker">NEON SABER RUSH</p>
+        <h1 id="panelTitle">OMSOLO</h1>
+        <button id="startButton" type="button">START</button>
+        <button id="restartButton" type="button" hidden>RETRY</button>
+      </section>
+
+      <nav id="touchControls" class="touch-controls" aria-label="touch controls">
+        <div class="touch-cluster">
+          <button class="touch-button" data-action="left" type="button" aria-label="left">&lt;</button>
+          <button class="touch-button" data-action="right" type="button" aria-label="right">&gt;</button>
+          <button class="touch-button" data-action="jump" type="button" aria-label="jump">^</button>
+        </div>
+        <div class="touch-cluster">
+          <button class="touch-button" data-action="dash" type="button" aria-label="dash">>>></button>
+          <button class="touch-button touch-primary" data-action="attack" type="button" aria-label="attack">ATK</button>
+          <button class="touch-button touch-force" data-action="force" type="button" aria-label="force">FRC</button>
+        </div>
+      </nav>
+    </main>
+
+    <script src="./game.js?v=4" defer></script>
+  </body>
+</html>
